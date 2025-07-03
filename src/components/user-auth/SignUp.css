@@ -1,0 +1,76 @@
+/* SignUp.css */
+
+.signup-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: row;
+}
+
+/* Left section with image */
+.left-section {
+  flex: 1.5;
+  background-color: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.left-section img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.5;
+}
+
+/* Right section with form */
+.right-section {
+  flex: 0.7; /* Reduced width */
+  background-color: #ffffff;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow-y: auto;
+}
+
+.back-button {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  z-index: 10;
+}
+
+
+.form-box {
+  width: 80%;
+  max-width: 340px; /* Reduced form width */
+}
+
+/* Spinner styling (optional) */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Responsive: stack on small screens */
+@media (max-width: 768px) {
+  .signup-container {
+    flex-direction: column;
+  }
+
+  .left-section {
+    display: none;
+  }
+
+  .right-section {
+    flex: none;
+    width: 100%;
+    padding: 2rem 1rem;
+  }
+
+  .form-box {
+    max-width: 100%;
+  }
+}
