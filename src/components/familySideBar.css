@@ -1,0 +1,63 @@
+.family-box {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.family-id {
+  font-size: 0.85rem;
+  color: #777;
+  margin-bottom: 10px;
+}
+
+.search-box {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 8px 32px 8px 12px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+}
+
+.search-box i {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #777;
+}
+
+.member-card {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.member-role {
+  font-size: 0.8rem;
+  color: #777;
+}
+
+.status-badge {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.status-badge.online {
+  background-color: #d4f4dd;
+  color: #198754;
+}
+
+.status-badge.offline {
+  background-color: #ffe5e5;
+  color: #dc3545;
+}

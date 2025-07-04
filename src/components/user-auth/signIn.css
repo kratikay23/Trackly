@@ -1,0 +1,18 @@
+.signup-container {
+  height: 100vh; /* Full screen height */
+}
+
+.left-section {
+  flex: 1;
+  height: 100%; /* Ensure left-section takes full height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f8f9fa;
+}
+
+.left-section img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
