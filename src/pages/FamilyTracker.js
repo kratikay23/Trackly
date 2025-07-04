@@ -22,6 +22,7 @@ function FamilyTracker() {
       const res = await axios.get(API.GET_FAMILY, {
         headers: { Authorization: `${token}` },
       });
+      console.log(token)
       if (res.data.family) {
         setFamily(res.data.family);
         setFamilyNameInput(res.data.family.familyName); // pre-fill input
