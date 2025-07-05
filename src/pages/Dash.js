@@ -7,14 +7,14 @@ import Navbar from "../components/navBar";
 const Dashboard = () => {
     const navigate = useNavigate();
     return <>
-        <Navbar/>
+        <Navbar />
         <div >
-            <div className="container py-4">
+            <div className="container py-4" style={{marginTop : "100px"}}>
                 <div className="card p-4 border-0 shadow-sm">
                     <div className="row align-items-center">
                         <div className="col-md-6">
                             <img
-                                src="/assets/family-img.png"
+                                src="https://miro.medium.com/v2/resize:fit:1252/0*aTTH9hc1_7JvCl-a.png"
                                 alt="Family Tracking"
                                 className="img-fluid"
                             />
@@ -47,7 +47,7 @@ const Dashboard = () => {
                             alt="SOS"
                             style={{ width: "50px", height: "50px", marginRight: "15px" }}
                         />
-                        <button className="btn btn-danger" onClick={()=>navigate("/sos-alert")}>🔴 Send SOS Alert</button>
+                        <button className="btn btn-danger" onClick={() => navigate("/sos-alert")}>🔴 Send SOS Alert</button>
                     </div>
                     <small className="text-muted">
                         Make sure location permissions are enabled for real-time tracking.
@@ -69,7 +69,7 @@ const Dashboard = () => {
         </div>
         <div className="text-white mt-3" style={{ position: 'relative' }}>
             <img
-                src="/assets/bg-img.png"
+                src="https://www.shutterstock.com/image-vector/destinations-isometric-gps-tracking-map-260nw-2397316607.jpg"
                 width="100%"
                 alt="bg-img"
                 style={{ objectFit: 'cover', height: '400px', filter: 'brightness(40%)' }}

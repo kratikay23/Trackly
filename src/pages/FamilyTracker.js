@@ -11,7 +11,7 @@ function FamilyTracker() {
   const [familyName, setFamilyName] = useState("");
   const [familyNameInput, setFamilyNameInput] = useState(""); // <-- for editing
   const [selectedFamilyId, setSelectedFamilyId] = useState("");
-  
+  console.log("Token ", token)
 
   useEffect(() => {
     if (token) fetchFamily();
@@ -36,6 +36,10 @@ function FamilyTracker() {
 
   const handleCreate = async () => {
     try {
+      if(user.authProvider === "google"){
+        alert("You must sign up to create family ")
+        return;
+      }
       await axios.post(
         API.ADD_FAMILY,
         { familyName },
