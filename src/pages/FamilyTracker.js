@@ -23,6 +23,7 @@ function FamilyTracker() {
         headers: { Authorization: `${token}` },
       });
       console.log(token)
+      console.log("RES :-", res)
       if (res.data.family) {
         setFamily(res.data.family);
         setFamilyNameInput(res.data.family.familyName); // pre-fill input
