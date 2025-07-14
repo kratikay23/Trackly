@@ -74,7 +74,7 @@ function SignIn() {
             // 4. Save to Redux
             dispatch(setUser({ user: fullUser, token }));
 
-            navigate("/profile");
+            navigate("/");
 
         } catch (error) {
             console.log("Login error:", error); // 👈 Add this
@@ -111,7 +111,7 @@ function SignIn() {
                 userData.picture = user.photoURL; // attach picture here
                 console.log(user.photoURL)
                 dispatch(setUser({ user: userData, token: appToken }));
-                navigate("/profile");
+                navigate("/");
             } else {
                 console.error("Invalid response from server:", res);
                 alert("Google sign-in failed. Please try again.");
