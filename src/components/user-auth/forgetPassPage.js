@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./SignUp.css";
-import axios from "axios";
+import apiClient from "../../apiClient";
 import API from "../../API";
+import { toast } from "react-toastify";
 
 function ForgetPassword() {
     const [email, setEmail] = useState();
-    const [password, setPassword] = useState();
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();
     const [isloading, setIsLoading] = useState(false);
@@ -24,20 +24,21 @@ function ForgetPassword() {
             const validationErrors = validate();
             if (Object.keys(validationErrors).length > 0) {
                 setErrors(validationErrors);
-            } else {
-                let response = await axios.post(API.FORGET_PASSWORD, { email})
-                console.log(response.data);
-                navigate("/");
+                return;
             }
-        } catch (error) {
-            console.log(error)
-        }
-        setIsLoading(false)
 
+            await apiClient.post(API.FORGET_PASSWORD, { email });
+            toast.success("Password reset link sent. Check your email.");
+            navigate("/sign-in");
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Could not send reset email. Try again.");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return <>
-        {isloading ? <div class="spinner-border" ></div> :
+        {isloading ? <div className="spinner-border" role="status" /> :
             <div className="signup-container d-flex flex-column flex-md-row">
                 {/* Left  section */}
                 <div className="left-section d-none d-md-block">
@@ -77,11 +78,11 @@ function ForgetPassword() {
                             </div>
                         </form>
                         <p className="text-center mb-2">
-                            <Link to={"/forget-password"}>I forgot my password</Link>
+                            <Link to="/sign-in">Back to sign in</Link>
                         </p>
                         <p className="text-center mt-3">
                             Don't have an account?
-                            <Link to="/sign-Up" className="text-primary">Sign Up</Link>
+                            <Link to="/sign-up" className="text-primary">Sign Up</Link>
                         </p>
                     </div>
                 </div>

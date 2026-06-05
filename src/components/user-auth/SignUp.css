@@ -1,7 +1,22 @@
 /* SignUp.css */
 
+.password-field .password-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
+  padding-left: 0.65rem;
+  padding-right: 0.65rem;
+}
+
+.password-field .form-control.is-invalid {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
 .signup-container {
-  height: 100vh;
+  min-height: 100vh;
+  height: auto;
   display: flex;
   flex-direction: row;
 }
@@ -58,6 +73,7 @@
 @media (max-width: 768px) {
   .signup-container {
     flex-direction: column;
+    min-height: 100dvh;
   }
 
   .left-section {
@@ -65,12 +81,35 @@
   }
 
   .right-section {
-    flex: none;
+    flex: 1;
     width: 100%;
-    padding: 2rem 1rem;
+    padding: 1.5rem 1rem 2rem;
+    justify-content: flex-start;
+    padding-top: 2.5rem;
   }
 
   .form-box {
+    width: 100%;
     max-width: 100%;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .form-control,
+  .btn {
+    font-size: 16px; /* prevents iOS zoom on focus */
+    min-height: 44px;
+  }
+
+  .btn-success {
+    width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  .right-section {
+    padding: 1.25rem 0.75rem 1.5rem;
   }
 }

@@ -1,100 +1,140 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import apiClient from "../apiClient";
 import API from "../API";
-import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import "./emgPage.css";
 
 const AddEditContactModal = ({ show, onClose, contact, onSave }) => {
-  const { token } = useSelector((state) => state.userData);
 
   const [name, setName] = useState("");
   const [contactNumber, setContactNumber] = useState("");
   const [email, setEmail] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (contact) {
-      setName(contact.name);
-      setContactNumber(contact.contactNumber);
-      setEmail(contact.email);
+      setName(contact.name || "");
+      setContactNumber(contact.contactNumber || "");
+      setEmail(contact.email || "");
     } else {
       setName("");
       setContactNumber("");
       setEmail("");
     }
-  }, [contact]);
+  }, [contact, show]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSaving(true);
 
     try {
-      if (contact) {
-        // EDIT
-        await axios.put(`${API.UPDATE_EMERGENCY_CONTACT}/${contact.emgId}`, {
-          name,
-          contactNumber,
-          email,
-        }, {
-          headers: { Authorization: token },
-        });
-        alert("Contact updated successfully");
+      if (contact?.emgId) {
+        await apiClient.put(
+          `${API.UPDATE_EMERGENCY_CONTACT}/${contact.emgId}`,
+          { name, contactNumber, email }
+        );
+        toast.success("Contact updated successfully");
       } else {
-        // ADD
-        const res = await axios.post(API.ADD_EMERGENCY_CONTACT, {
-          name,
-          contactNumber,
-          email,
-        }, {
-          headers: { Authorization: token },
-        });
-        console.log(res.data)
-        alert("Contact added successfully");
+        await apiClient.post(
+          API.ADD_EMERGENCY_CONTACT,
+          { name, contactNumber, email }
+        );
+        toast.success("Contact added successfully");
       }
 
-      onSave();      // Refresh list
-      onClose();     // Close modal
-
+      onSave();
+      onClose();
     } catch (err) {
-      console.error("Save failed", err);
-      alert("Failed to save contact");
+      toast.error(err.response?.data?.message || "Failed to save contact");
+    } finally {
+      setSaving(false);
     }
   };
 
+  if (!show) return null;
+
   return (
-    <div className={`modal fade show`} style={{ display: show ? 'block' : 'none' ,marginTop : "50px"}} tabIndex="-1">
-      <div className="modal-dialog">
-        <div className="modal-content">
-
-          <form onSubmit={handleSubmit}>
-            <div className="modal-header">
-              <h5 className="modal-title">{contact ? "Edit" : "Add"} Emergency Contact</h5>
-              <button type="button" className="btn-close" onClick={onClose}></button>
-            </div>
-
-            <div className="modal-body">
-              <div className="mb-3">
-                <label className="form-label">Name</label>
-                <input type="text" className="form-control" required value={name} onChange={(e) => setName(e.target.value)} />
+    <>
+      <div className="emg-modal-backdrop-custom" onClick={onClose} aria-hidden />
+      <div
+        className="modal fade show emg-form-modal d-block"
+        tabIndex={-1}
+        role="dialog"
+        style={{ zIndex: 1070 }}
+      >
+        <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+          <div className="modal-content">
+            <form onSubmit={handleSubmit}>
+              <div className="modal-header">
+                <h5 className="modal-title">
+                  {contact ? "Edit" : "Add"} emergency contact
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={onClose}
+                  aria-label="Close"
+                />
               </div>
 
-              <div className="mb-3">
-                <label className="form-label">Phone Number</label>
-                <input type="text" className="form-control" required value={contactNumber} onChange={(e) => setContactNumber(e.target.value)} />
+              <div className="modal-body">
+                <div className="mb-3">
+                  <label className="form-label">Name</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Contact name"
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Phone number</label>
+                  <input
+                    type="tel"
+                    className="form-control"
+                    required
+                    value={contactNumber}
+                    onChange={(e) => setContactNumber(e.target.value)}
+                    placeholder="e.g. +91 9876543210"
+                  />
+                </div>
+
+                <div className="mb-0">
+                  <label className="form-label">Email (recommended for SOS)</label>
+                  <input
+                    type="email"
+                    className="form-control"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="contact@email.com"
+                  />
+                  <small className="text-muted">
+                    SOS alerts are emailed to this address
+                  </small>
+                </div>
               </div>
 
-              <div className="mb-3">
-                <label className="form-label">Email (optional)</label>
-                <input type="email" className="form-control" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <div className="modal-footer flex-wrap gap-2">
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={onClose}
+                  disabled={saving}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary" disabled={saving}>
+                  {saving ? "Saving…" : contact ? "Update" : "Add"}
+                </button>
               </div>
-            </div>
-
-            <div className="modal-footer">
-              <button type="button" className="btn btn-outline-secondary" onClick={onClose}>Cancel</button>
-              <button type="submit" className="btn btn-primary">{contact ? "Update" : "Add"}</button>
-            </div>
-          </form>
-
+            </form>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

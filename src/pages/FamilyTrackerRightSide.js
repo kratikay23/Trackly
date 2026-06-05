@@ -1,21 +1,22 @@
-function RightSide() {
-    return <>
-        <div style={{ flex: 1, padding: "0px", textAlign: "center", backgroundColor: "#f3fcfd", height: "100%" }}>
-            <div className="illustration">
-                <img
-                    style={{ maxWidth: "250px", marginBottom: "10px", marginTop: "100px" }}
-                    src="https://cdn-icons-png.flaticon.com/512/684/684908.png"
-                    alt="Map Illustration"
-                />
-            </div>
-            <div className="description">
-                <h3 style={{ fontSize: "1.4rem", marginBottom: "0.5rem" }}>Trackly</h3>
-                <p style={{ color: "#555", maxWidth: "400px", margin: "auto" }}>
-                    Family first. Always connected. Track your loved ones and manage safety alerts, messages, and maps — all in one place.
-                </p>
-            </div>
+import "../pages/familyTracker.css";
 
-        </div>
-    </>
+function RightSide() {
+  return (
+    <div className="family-tracker-welcome">
+      <img
+        src="https://cdn-icons-png.flaticon.com/512/684/684908.png"
+        alt="Map illustration"
+      />
+      <h3>Trackly</h3>
+      <p>
+        Family first. Always connected. Track your loved ones and manage safety alerts,
+        messages, and maps — all in one place.
+      </p>
+      <p className="text-muted small mt-3 mb-0 d-md-none">
+        Use the bar below to open Live Map or Group Chat.
+      </p>
+    </div>
+  );
 }
+
 export default RightSide;

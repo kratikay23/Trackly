@@ -1,15 +1,22 @@
-// src/components/ProtectedRoute.jsx
 import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-const ProtectedRoute = ({ children }) => {
-    const { token } = useSelector((state) => state.userData);
+const ProtectedRoute = () => {
+  const { user, authChecked, authLoading } = useSelector((state) => state.userData);
 
-    if (!token) {
-        return <Navigate to="/sign-In" replace />;
-    }
+  if (!authChecked || authLoading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center min-vh-100">
+        <div className="spinner-border text-success" role="status" />
+      </div>
+    );
+  }
 
-    return children || <Outlet />;
+  if (!user) {
+    return <Navigate to="/sign-in" replace />;
+  }
+
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

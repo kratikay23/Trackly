@@ -1,21 +1,19 @@
 import React, { useCallback, useEffect, useState } from "react";
+import apiClient from "../apiClient";
 import { GoogleMap, Marker, InfoWindow, useJsApiLoader } from "@react-google-maps/api";
-import axios from "axios";
 import API from "../API";
 import { useSelector } from "react-redux";
 
-const mapContainerStyle = { width: "100%", height: "80%" };
+const mapContainerStyle = { width: "100%", height: "100%", minHeight: "240px" };
 const defaultZoom = 14;
 
-const blueIcon = "http://maps.google.com/mapfiles/ms/icons/blue-dot.png?v=1";
-const redIcon = "http://maps.google.com/mapfiles/ms/icons/red-dot.png?v=1";
 
 function FamilyMap() {
   const [familyMembers, setFamilyMembers] = useState([]);
   const [currentPosition, setCurrentPosition] = useState(null);
   const [selectedMember, setSelectedMember] = useState(null);
-const token = useSelector((state) => state.userData.token);
-const currentUserId = useSelector((state) => state.userData.user._id); // 👈 yaha se
+
+  const currentUserId = useSelector((state) => state.userData.user?._id);
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.REACT_APP_MAP_API
@@ -28,28 +26,21 @@ const currentUserId = useSelector((state) => state.userData.user._id); // 👈 y
         setCurrentPosition({ lat: latitude, lng: longitude });
 
         try {
-          await axios.post(API.SAVE_USER_LOCATION, { latitude, longitude }, {
-            headers: { Authorization: token }
-          });
+          await apiClient.post(API.SAVE_USER_LOCATION, { latitude, longitude });
         } catch (err) {
-          console.error("Location update failed", err);
         }
       },
-      (err) => console.error("Location access denied", err)
+      () => {}
     );
-  }, [token]);
+  }, []);
 
   const fetchFamilyLocations = useCallback(async () => {
     try {
-      const res = await axios.get(API.FETCH_FAMILY_LOCATIONS, {
-        headers: { Authorization: token }
-      });
-      console.log("Fetched Members:", res.data.members);
+      const res = await apiClient.get(API.FETCH_FAMILY_LOCATIONS);
       setFamilyMembers(res.data.members || []);
     } catch (err) {
-      console.error("Failed to fetch family locations", err);
     }
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     updateMyLocation();
@@ -66,7 +57,7 @@ const currentUserId = useSelector((state) => state.userData.user._id); // 👈 y
   if (!isLoaded) return <p>Loading map...</p>;
 
   return (
-    <div style={{ width: "100%", height: "100%" }} className="bg-light">
+    <div className="family-map-root bg-light">
       <h2>Live Map</h2>
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
@@ -77,7 +68,7 @@ const currentUserId = useSelector((state) => state.userData.user._id); // 👈 y
   const loc = member.UserLocation;
   if (!loc) return null;
 
-  const isCurrentUser = member._id === currentUserId;
+            const isCurrentUser = String(member._id) === String(currentUserId);
 
   return (
     <Marker

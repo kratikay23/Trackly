@@ -16,7 +16,6 @@ function Map() {
                 })
             },
             (error) => {
-                console.error("Error getting in location", error);
             }
         )
     }, []);
@@ -29,9 +28,9 @@ function Map() {
         return <p>Loading Map</p>;
     }
     return <>
-        <div className="mt-3">
+        <div className="mt-3 trackly-map-wrap">
             {currentPosition ? (
-                <GoogleMap mapContainerStyle={{ width: "100%", height: "300px" }}
+                <GoogleMap mapContainerStyle={{ width: "100%", height: "100%" }}
                     center={currentPosition}
                     zoom={15}>
                     <Marker position={currentPosition} />

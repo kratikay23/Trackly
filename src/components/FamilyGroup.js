@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import apiClient from "../apiClient";
 import API from "../API";
+import { getFamilyFromApi, getFamilyGroupByCode } from "../utils/familyGroup";
 import { useSelector } from "react-redux";
 import GroupChatBox from "./GroupChatBox";
+import { toast } from "react-toastify";
 
 const FamilyGroupChat = () => {
-  const { token, user } = useSelector((state) => state.userData);
+  const { user } = useSelector((state) => state.userData);
+  const userId = user?._id;
   const [hasGroup, setHasGroup] = useState(false);
   const [loading, setLoading] = useState(true);
   const [groupName, setGroupName] = useState("");
@@ -13,63 +16,60 @@ const FamilyGroupChat = () => {
   useEffect(() => {
     const checkFamilyGroup = async () => {
       try {
-        const res = await axios.get(API.GET_FAMILY, {
-          headers: { Authorization: token },
-        });
-
-        if (res.data.family && res.data.family._id) {
-          const groupRes = await axios.get(
-            `${API.FETCH_FAMILY_GROUP}/${res.data.family.familyID}`,
-            { headers: { Authorization: token } }
-          );
-
-
-          const groupExists = !!groupRes.data.result;
-          setHasGroup(groupExists);
+        const family = await getFamilyFromApi();
+        if (family?._id) {
+          const group = await getFamilyGroupByCode(family.familyID);
+          setHasGroup(!!group);
         }
       } catch (error) {
-        console.error("Error checking group:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    checkFamilyGroup();
-  }, [token]);
+    if (userId) checkFamilyGroup();
+  }, [userId]);
 
   const handleCreateGroup = async () => {
     try {
-      const res = await axios.get(API.GET_FAMILY, {
-        headers: { Authorization: token },
+      const family = await getFamilyFromApi();
+      const familyID = family.familyID;
+
+      await apiClient.post(API.CREATE_FAMILY_GROUP, {
+        familyID,
+        groupName: groupName || "My Family Group",
       });
 
-      const familyID = res.data.family.familyID;
-
-      const groupRes = await axios.post(
-        API.CREATE_FAMILY_GROUP,
-        {
-          familyID,
-          groupName: groupName || "My Family Group",
-        },
-        { headers: { Authorization: token } }
-      );
-
-      console.log("Group created successfully:", groupRes.data);
+      toast.success("Family group created");
       setHasGroup(true);
     } catch (error) {
-      console.error("Failed to create family group:", error.response?.data || error);
-      alert("Error creating group: " + (error.response?.data?.error || error.message));
+      const message =
+        error.response?.data?.message || error.response?.data?.error || error.message;
+
+      // Group may already exist from a previous partial create
+      if (message?.toLowerCase().includes("already exists")) {
+        setHasGroup(true);
+        return;
+      }
+
+      toast.error("Error creating group: " + message);
     }
   };
 
-  if (loading) return <div className="text-center mt-5">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="family-group-page d-flex justify-content-center align-items-center">
+        <div className="spinner-border text-success" role="status" />
+      </div>
+    );
+  }
 
   return (
-    <div style={{ height: "100%", width: "100%" }}>
+    <div className="family-group-page">
       {hasGroup ? (
         <GroupChatBox />
       ) : (
-        <div className="card p-4 shadow" style={{ width: "400px", margin: "auto", marginTop: "100px" }}>
+        <div className="card p-4 shadow mx-auto my-auto" style={{ maxWidth: "400px", width: "calc(100% - 24px)" }}>
           <h4 className="mb-3 text-center">Create Family Group</h4>
           <input
             type="text"

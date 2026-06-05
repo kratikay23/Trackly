@@ -1,0 +1,249 @@
+.family-tracker-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  background-color: #f0f4f4;
+}
+
+.family-tracker-sidebar-wrap {
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.family-tracker-main {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #f3fcfd;
+}
+
+.family-tracker-main-inner {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Mobile: one panel at a time + bottom nav */
+@media (max-width: 767.98px) {
+  .family-tracker-layout {
+    height: 100dvh;
+    height: 100dvh;
+    overflow: hidden;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+
+  .family-tracker-sidebar-wrap.family-tracker-panel-hidden {
+    display: none !important;
+  }
+
+  .family-tracker-main.family-tracker-panel-hidden {
+    display: none !important;
+  }
+
+  .family-tracker-sidebar-wrap:not(.family-tracker-panel-hidden),
+  .family-tracker-main:not(.family-tracker-panel-hidden) {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .family-tracker-main-inner {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .family-tracker-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+    display: flex;
+    justify-content: space-around;
+    align-items: stretch;
+    background: #fff;
+    border-top: 1px solid #dee2e6;
+    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.08);
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0));
+  }
+
+  .family-tracker-nav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 8px 4px;
+    border: none;
+    background: transparent;
+    color: #6c757d;
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 8px;
+    min-height: 52px;
+  }
+
+  .family-tracker-nav-btn.active {
+    color: #198754;
+    background-color: #e8f5e9;
+  }
+
+  .family-tracker-nav-btn .nav-icon {
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+}
+
+@media (min-width: 768px) {
+  .family-tracker-layout {
+    flex-direction: row;
+    padding-bottom: 0;
+  }
+
+  .family-tracker-sidebar-wrap {
+    width: 320px;
+    max-width: 340px;
+    border-right: 1px solid #dee2e6;
+  }
+
+  .family-tracker-bottom-nav {
+    display: none;
+  }
+}
+
+/* Right side welcome */
+.family-tracker-welcome {
+  flex: 1;
+  width: 100%;
+  padding: clamp(16px, 4vw, 32px);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: min(60vh, 100%);
+}
+
+.family-tracker-welcome img {
+  max-width: min(220px, 55vw);
+  height: auto;
+  margin-bottom: 1rem;
+}
+
+/* Live map */
+.family-map-page {
+  width: 100%;
+  height: 100%;
+  min-height: calc(100dvh - 64px);
+  display: flex;
+  flex-direction: column;
+  padding: 12px 12px 16px;
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .family-map-page {
+    min-height: 100vh;
+    padding: 16px;
+  }
+}
+
+.family-map-page h2 {
+  font-size: clamp(1.25rem, 4vw, 1.5rem);
+  margin: 0 0 8px;
+  font-weight: 700;
+}
+
+.family-map-container {
+  flex: 1;
+  min-height: 280px;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.family-map-footer {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #555;
+  text-align: center;
+}
+
+.family-group-page {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.family-map-root {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  box-sizing: border-box;
+  background: #f3fcfd;
+}
+
+.family-map-root h2 {
+  font-size: clamp(1.1rem, 4vw, 1.35rem);
+  margin: 0 0 8px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.family-map-root .trackly-map-inner {
+  flex: 1;
+  min-height: 200px;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.family-map-root .map-api-hint {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px 16px;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px dashed #ced4da;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+@media (min-width: 768px) {
+  .family-group-page {
+    min-height: 100%;
+    padding: 0;
+  }
+
+  .family-map-root {
+    min-height: 100%;
+    padding: 16px;
+  }
+}

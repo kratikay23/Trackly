@@ -1,97 +1,126 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState, useEffect, useCallback } from "react";
+import apiClient from "../apiClient";
 import API from "../API";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { updateUser } from "../components/react-redux/UserSlice";
+import { toast } from "react-toastify";
 
 function FamilyTracker() {
-  const { token , user} = useSelector((state) => state.userData);
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.userData);
   const [family, setFamily] = useState(null);
   const [enabled, setEnabled] = useState(false);
-  const [mode, setMode] = useState(""); // "join" | "create"
+  const [mode, setMode] = useState("");
   const [familyName, setFamilyName] = useState("");
-  const [familyNameInput, setFamilyNameInput] = useState(""); // <-- for editing
+  const [familyNameInput, setFamilyNameInput] = useState("");
   const [selectedFamilyId, setSelectedFamilyId] = useState("");
-  console.log("Token ", token)
+  const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    if (token) fetchFamily();
-  }, [token]);
+  const userId = user?._id;
 
-  const fetchFamily = async () => {
+  const fetchFamily = useCallback(async () => {
+    if (!userId) return;
     try {
-      const res = await axios.get(API.GET_FAMILY, {
-        headers: { Authorization: `${token}` },
-      });
-      console.log(token)
-      console.log("RES :-", res)
+      const res = await apiClient.get(API.GET_FAMILY);
       if (res.data.family) {
         setFamily(res.data.family);
-        setFamilyNameInput(res.data.family.familyName); // pre-fill input
+        setFamilyNameInput(res.data.family.familyName);
         setEnabled(true);
+        dispatch(
+          updateUser({
+            familyId: res.data.family._id,
+            role: res.data.role,
+          })
+        );
+      } else {
+        setFamily(null);
+        setEnabled(false);
       }
     } catch {
+      setFamily(null);
       setEnabled(false);
     }
-  };
+  }, [userId, dispatch]);
+
+  useEffect(() => {
+    fetchFamily();
+  }, [fetchFamily]);
 
   const handleCreate = async () => {
+    if (!familyName.trim()) {
+      toast.error("Enter a family name");
+      return;
+    }
     try {
-      if(user.authProvider === "google"){
-        alert("You must sign up to create family ")
+      if (user?.authProvider === "google"&& user.contactNo === "") {
+        toast.error("Link email login from Profile to create a family");
         return;
       }
-      await axios.post(
+      await apiClient.post(
         API.ADD_FAMILY,
-        { familyName },
-        { headers: { Authorization: `${token}` } }
+        { familyName: familyName.trim() }
       );
-      alert("Family created successfully");
-      fetchFamily();
+      toast.success("Family created successfully");
+      setFamilyName("");
       setMode("");
+      fetchFamily();
     } catch (err) {
-      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to create family");
     }
   };
 
   const handleJoin = async () => {
+    if (!selectedFamilyId.trim()) {
+      toast.error("Enter a family code");
+      return;
+    }
     try {
-      await axios.post(
+      await apiClient.post(
         API.JOIN_BY_CODE,
-        { familyCode: selectedFamilyId },
-        { headers: { Authorization: `${token}` } }
+        { familyCode: selectedFamilyId.trim() }
       );
-      alert("Joined family");
-      fetchFamily();
+      toast.success("Joined family");
+      setSelectedFamilyId("");
       setMode("");
+      fetchFamily();
     } catch {
-      alert("Invalid code or join failed");
+      toast.error("Invalid code or join failed");
     }
   };
 
   const handleSaveChange = async () => {
+    if (!familyNameInput.trim()) {
+      toast.error("Family name cannot be empty");
+      return;
+    }
     try {
-      const res = await axios.put(
+      setSaving(true);
+      await apiClient.put(
         API.CHANGE_FAMILY_NAME,
-        { newFamilyName: familyNameInput },
-        { headers: { Authorization: `${token}` } }
+        { newFamilyName: familyNameInput.trim() }
       );
-      alert("Family name updated");
+      toast.success("Family name updated");
       fetchFamily();
     } catch (err) {
-      console.error("Failed to update name", err);
-      alert("Update failed");
+      toast.error(err.response?.data?.message || "Update failed");
+    } finally {
+      setSaving(false);
     }
   };
 
   const handleCancel = () => {
-    setFamilyNameInput(family.familyName); // reset to original
+    if (family) setFamilyNameInput(family.familyName);
   };
 
+  const myRole =
+    family?.members?.find((m) => String(m._id) === String(user?._id))?.role ||
+    "Member";
+
   return (
-    <div className="card p-4 shadow-sm rounded-4" >
+    <div className="card family-tracker-card shadow-sm border-0">
       <h5 className="mb-4">Family Tracker</h5>
 
-      {enabled && family && (
+      {family && (
         <>
           <div className="mb-3">
             <label className="form-label fw-bold">Family Name</label>
@@ -107,29 +136,31 @@ function FamilyTracker() {
             <input
               type="text"
               className="form-control"
-              value={family.familyID}
+              value={family.familyID || family.familyId || ""}
               disabled
-            />
-          </div>
-          <div className="mb-2">
-            <label className="form-label fw-bold">Role</label>
-            <input
-              type="text"
-              className="form-control"
-              value={
-                family.members.find((member) => member._id === user._id)?.role || "Member"
-              }
               readOnly
             />
           </div>
-
-
-          <div className="d-flex justify-content-end gap-2 mt-3">
-            <button className="btn btn-outline-dark" onClick={handleCancel}>
+          <div className="mb-3">
+            <label className="form-label fw-bold">Role</label>
+            <input type="text" className="form-control" value={myRole} readOnly />
+          </div>
+          <div className="family-tracker-actions mt-3">
+            <button
+              type="button"
+              className="btn btn-outline-dark w-100 w-sm-auto"
+              onClick={handleCancel}
+              disabled={saving}
+            >
               Cancel
             </button>
-            <button className="btn btn-primary ml-2" onClick={handleSaveChange}>
-              Save Change
+            <button
+              type="button"
+              className="btn btn-primary w-100 w-sm-auto"
+              onClick={handleSaveChange}
+              disabled={saving}
+            >
+              {saving ? "Saving…" : "Save Change"}
             </button>
           </div>
         </>
@@ -141,24 +172,29 @@ function FamilyTracker() {
             <input
               className="form-check-input"
               type="checkbox"
+              id="enable-family"
               checked={enabled}
               onChange={() => setEnabled(!enabled)}
             />
-            <label className="form-check-label">Enable Family Tracker</label>
+            <label className="form-check-label" htmlFor="enable-family">
+              Enable Family Tracker
+            </label>
           </div>
 
           {enabled && (
             <>
               {!mode && (
-                <div className="d-flex gap-2">
+                <div className="d-flex flex-column flex-sm-row gap-2">
                   <button
-                    className="btn btn-outline-primary w-50"
+                    type="button"
+                    className="btn btn-outline-primary w-100 w-sm-50"
                     onClick={() => setMode("create")}
                   >
                     Create Family
                   </button>
                   <button
-                    className="btn btn-outline-secondary w-50"
+                    type="button"
+                    className="btn btn-outline-secondary w-100 w-sm-50"
                     onClick={() => setMode("join")}
                   >
                     Join Family
@@ -175,12 +211,17 @@ function FamilyTracker() {
                     value={familyName}
                     onChange={(e) => setFamilyName(e.target.value)}
                   />
-                  <div className="d-flex gap-2">
-                    <button className="btn btn-success w-50" onClick={handleCreate}>
+                  <div className="d-flex flex-column flex-sm-row gap-2">
+                    <button
+                      type="button"
+                      className="btn btn-success w-100 w-sm-50"
+                      onClick={handleCreate}
+                    >
                       Create
                     </button>
                     <button
-                      className="btn btn-outline-danger w-50"
+                      type="button"
+                      className="btn btn-outline-danger w-100 w-sm-50"
                       onClick={() => setMode("")}
                     >
                       Cancel
@@ -194,16 +235,21 @@ function FamilyTracker() {
                   <input
                     type="text"
                     className="form-control mb-2"
-                    placeholder="Enter Family Code"
+                    placeholder="Enter family code"
                     value={selectedFamilyId}
                     onChange={(e) => setSelectedFamilyId(e.target.value)}
                   />
-                  <div className="d-flex gap-2">
-                    <button className="btn btn-primary w-50" onClick={handleJoin}>
+                  <div className="d-flex flex-column flex-sm-row gap-2">
+                    <button
+                      type="button"
+                      className="btn btn-primary w-100 w-sm-50"
+                      onClick={handleJoin}
+                    >
                       Join
                     </button>
                     <button
-                      className="btn btn-outline-danger w-50"
+                      type="button"
+                      className="btn btn-outline-danger w-100 w-sm-50"
                       onClick={() => setMode("")}
                     >
                       Cancel
