@@ -1,0 +1,11 @@
+# Optional: import this in Render Blueprint, OR add the rewrite rule manually in Dashboard.
+services:
+  - type: web
+    name: trackly-frontend
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: build
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
