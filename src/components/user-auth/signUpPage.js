@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./SignUp.css";
-import apiClient from "../../apiClient";
+import axios from "axios";
 import API from "../../API";
 import { toast } from "react-toastify";
-import PasswordField from "../PasswordField";
 
 function SignUp() {
     const [userName, setUserName] = useState();
@@ -13,7 +12,6 @@ function SignUp() {
     const [password, setPassword] = useState();
     const [errors, setErrors] = useState({});
     const [verifyLink, setVerifyLink] = useState(null);
-    const [sendGridHint, setSendGridHint] = useState(null);
     const [emailSent, setEmailSent] = useState(false);
     const navigate = useNavigate();
     const [isloading, setIsLoading] = useState(false);
@@ -32,20 +30,18 @@ function SignUp() {
             setIsLoading(true)
             event.preventDefault();
             setVerifyLink(null);
-            setSendGridHint(null);
             setEmailSent(false);
             const validationErrors = validate();
             if (Object.keys(validationErrors).length > 0) {
                 setErrors(validationErrors)
             } else {
-                const response = await apiClient.post(API.SIGN_UP, { userName, email, contactNo, password });
+                const response = await axios.post(API.SIGN_UP, { userName, email, contactNo, password });
                 const devLink = response.data?.devVerifyLink;
 
                 if (devLink) {
                     setVerifyLink(devLink);
-                    setSendGridHint(response.data?.sendGridHint || null);
                     setEmailSent(false);
-                    toast.warn("Account created. Verify using the button below (email could not be sent).");
+                    toast.warn("Account created, but email could not be sent. Use the verify button below.");
                 } else {
                     setEmailSent(true);
                     toast.success(response.data?.message || "Check your inbox to verify, then sign in.");
@@ -54,6 +50,7 @@ function SignUp() {
             }
 
         } catch (error) {
+            console.error("Sign up failed:", error);
             const data = error.response?.data;
             let message = data?.message || "Sign up failed. Please check your details.";
             const err = data?.error;
@@ -95,12 +92,8 @@ function SignUp() {
 
                         {verifyLink && (
                             <div className="alert alert-warning mb-3">
-                                <strong>Email not sent.</strong>
-                                {sendGridHint ? (
-                                    <p className="small mb-2 mt-1">{sendGridHint}</p>
-                                ) : (
-                                    <span> Configure SendGrid in backend <code>.env</code> and restart the server.</span>
-                                )}
+                                <strong>Email not sent.</strong> Gmail needs an App Password (not <code>Trackly@123</code>).
+                                Or add <code>SENDGRID_API_KEY</code> in backend <code>.env</code>.
                                 <div className="mt-2 d-grid gap-2">
                                     <a href={verifyLink} className="btn btn-success btn-sm">
                                         Verify my account now
@@ -145,14 +138,9 @@ function SignUp() {
                                 {errors.contactNo && <small className="invalid-feedback">{errors.contactNo}</small>}
                             </div>
                             <div className="form-group">
-                                <small className="text-secondary">Password</small>
-                                <PasswordField
-                                    value={password || ""}
-                                    onChange={(event) => setPassword(event.target.value)}
-                                    isInvalid={!!errors.password}
-                                    autoComplete="new-password"
-                                />
-                                {errors.password && <small className="invalid-feedback d-block">{errors.password}</small>}
+                                <small className="text-secondary" >Password</small>
+                                <input onChange={(event) => setPassword(event.target.value)} type="password" className={`form-control ${errors.password ? 'is-invalid' : ''}`} />
+                                {errors.password && <small className="invalid-feedback">{errors.password}</small>}
                             </div>
                             <div className="form-group">
                                 <button type="submit" className="btn btn-success w-100">
