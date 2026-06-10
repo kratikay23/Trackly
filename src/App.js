@@ -1,4 +1,5 @@
-import { Route, Routes } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Route, Routes, useNavigate, useSearchParams } from 'react-router-dom';
 import './App.css';
 import './styles/trackly-responsive.css';
 import { ToastContainer } from 'react-toastify';
@@ -20,9 +21,27 @@ import AuthBootstrap from './components/user-auth/AuthBootstrap.js';
 import FooterContentPage from './pages/footer/FooterContentPage.js';
 import { footerRoutes } from './pages/footer/footerContent.js';
 
+function EmailLinkRedirect() {
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+
+    useEffect(() => {
+        const resetEmail = searchParams.get('reset-email');
+        if (resetEmail) {
+            navigate(
+                `/reset-password?email=${encodeURIComponent(resetEmail)}`,
+                { replace: true }
+            );
+        }
+    }, [searchParams, navigate]);
+
+    return null;
+}
+
 function App() {
     return <>
         <AuthBootstrap>
+        <EmailLinkRedirect />
         <Routes>
             <Route element={<ProtectedRoute />}>
                 <Route path="/profile" element={<Profile />} />
